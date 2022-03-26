@@ -1,4 +1,3 @@
-
 import sha3
 import secrets
 import string
@@ -42,13 +41,23 @@ def generate_keys():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     eth = Etherscan('F92Z14GE2DTF6PBBYY1YPHPJ438PT3P2VI')  # key in quotation marks
-    i = 1
+    balances = []
+    nb = 20
     while True:
-        i += 1
-        key = generate_keys()
-        balance = int(eth.get_eth_balance(address=key['address']))
-        print('key Nb:'+str(i) + " / balance = " + str(balance))
+        print(nb)
+        nb += 20
+        keyGen = {}
+        keys = []
+        res = {}
+        for x in range(20):
+            res = generate_keys()
+            keyGen[res['address']] = res
 
-        if (0 != balance):
-            with open("./wallets.txt", "a") as text_file:
-                text_file.write('balance = ' + str(balance) + "/" + str(key) + '\n')
+        for i in keyGen:
+            keys.append(keyGen[i]['address'])
+
+        balances = eth.get_eth_balance_multiple(addresses=keys)
+        for balance in balances:
+            if (0 < int(balance['balance'])):
+                with open("./wallets.txt", "a") as text_file:
+                    text_file.write('balance = ' + str(balance) + "/" + str(keyGen[balance['account']]) + '\n')
