@@ -1,3 +1,6 @@
+import os
+import threading
+
 import sha3
 import secrets
 import string
@@ -39,12 +42,15 @@ def generate_keys():
 
 
 # Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    eth = Etherscan('F92Z14GE2DTF6PBBYY1YPHPJ438PT3P2VI')  # key in quotation marks
+def main(api_key):
+    my_path = os.path.abspath(os.path.dirname(__file__))
+
+    threadId = threading.currentThread().getName()
+    eth = Etherscan(api_key)  # key in quotation marks
     balances = []
     nb = 20
     while True:
-        print(nb)
+        print(threadId + ' total tested keys:' + str(nb))
         nb += 20
         keyGen = {}
         keys = []
@@ -55,9 +61,14 @@ if __name__ == '__main__':
 
         for i in keyGen:
             keys.append(keyGen[i]['address'])
+        try:
+            balances = eth.get_eth_balance_multiple(addresses=keys)
+        except Exception as e:
+            print(e)
+            continue
 
-        balances = eth.get_eth_balance_multiple(addresses=keys)
         for balance in balances:
             if (0 < int(balance['balance'])):
-                with open("./wallets.txt", "a") as text_file:
+                print("==============================>thread:" + threadId + ' balance:' + balance['balance'])
+                with open(my_path + "/results/" + threadId + "_wallets.txt", "a") as text_file:
                     text_file.write('balance = ' + str(balance) + "/" + str(keyGen[balance['account']]) + '\n')

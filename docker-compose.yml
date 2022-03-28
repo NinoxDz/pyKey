@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+
+  pykeys:
+    container_name: pykeys
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./results:/app/results
